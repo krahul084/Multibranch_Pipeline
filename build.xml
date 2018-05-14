@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project name="Rectangle-Build" default="main" basedir=".">
+	<property environment="env" />
+
+	<property name="release" value="1" />
+	<property name="src.dir" value="src" />
+	<property name="build.dir" value="build" />
+	<property name="dist.dir" value="dist" />
+
+
+	<path id="class.path">
+	    <pathelement path="./lib/junit-4.10.jar" />
+	    <pathelement path="${build.dir}" />
+	</path>
+
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+	</target>
+
+	<target name="compile" depends="prepare">
+	    <javac srcdir="${src.dir}" destdir="${build.dir}">
+	    	<classpath refid="class.path" />
+	    </javac>
+	</target>
+
+	<target name="package" depends="compile">
+		<jar destfile="${dist.dir}\rectangle_${release}.${env.BUILD_NUMBER}.jar" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="Rectangulator" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="main" depends="compile, package" />
+</project>
