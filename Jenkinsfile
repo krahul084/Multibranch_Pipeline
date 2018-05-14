@@ -39,9 +39,9 @@ pipeline {
 	        label 'apache'
 	      }
 	      steps {
-	        sh "if [ ! -d '/var/www/html/rectangles/all' ]; then mkdir -p /var/www/html/rectangles/all/green; fi"
+	        sh "if [ ! -d '/var/www/html/rectangles/all/${env.BRANCH_NAME}' ]; then mkdir -p /var/www/html/rectangles/all/${env.BRANCH_NAME}/green; fi"
 
-	        sh "cp -rp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/"
+	        sh "cp -rp dist/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/${env.BRANCH_NAME}/"
 	      }
 	    }
 
@@ -50,7 +50,7 @@ pipeline {
 	        label 'centos'
 	      }
 	      steps {
-	        sh "wget http://krahulchowdary6.mylabserver.com/rectangles/all/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
+	        sh "wget http://krahulchowdary6.mylabserver.com/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
 	        sh "java -jar rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar 5 6"
 		  }
 
@@ -61,11 +61,36 @@ pipeline {
 		    label 'apache'
 		  }
                   when {
-	            branch 'development'
+	            branch 'master'
                   }
 		  steps{
-		    sh "cp /var/www/html/rectangles/all/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/green/"
+		    sh "cp /var/www/html/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/master/green/"
 		  }
+		}
+                
+                stage('Promote Development to Master Branch'){
+		  agent {
+		      label 'apache'
+                  }
+		  
+                  when {
+		      branch 'development'
+		  }
+		  
+                  steps {
+		      echo "Stashing any local changes"
+		      sh 'git stash'
+		      echo "Checking out Development Branch"
+		      sh 'git checkout development'
+                      echo "Making sure the development branch is upto date"
+		      sh 'git pull origin'
+		      echo "Checking Out Master Branch"
+		      sh 'git checkout master'
+		      echo "Merging Development into Master Branch"
+		      sh 'git merge development'
+		      echo "Pushing to Origin Master"
+		      echo "git push origin master"
+                  }
 		}
     }
     post {
