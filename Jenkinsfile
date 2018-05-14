@@ -50,7 +50,7 @@ pipeline {
 
 	    stage("Testing the Built Jar") {
 	      agent {
-	        label 'centos'
+	        label 'apache'
 	      }
 	      steps {
 	        sh "wget http://krahulchowdary6.mylabserver.com/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar"
