@@ -10,6 +10,7 @@ pipeline {
 	      agent {
 	        label 'apache'
 	      }
+	      
 	      steps {
 
 	         sh 'ant -f test.xml -v'
@@ -23,6 +24,7 @@ pipeline {
 	      agent {
 	        label 'apache'
 	      }
+
 	      steps {
 	        sh 'ant -f build.xml -v'
 
@@ -38,6 +40,7 @@ pipeline {
 	      agent{
 	        label 'apache'
 	      }
+	      
 	      steps {
 	        sh "if [ ! -d '/var/www/html/rectangles/all/${env.BRANCH_NAME}' ]; then mkdir -p /var/www/html/rectangles/all/${env.BRANCH_NAME}/green; fi"
 
@@ -56,31 +59,7 @@ pipeline {
 
 		}
 
-            stage('Promote Development to Master Branch'){
-		  agent {
-		      label 'apache'
-                  }
-		  
-                  when {
-		      branch 'development'
-		  }
-		  
-                  steps {
-		      echo "Stashing any local changes"
-		      sh 'git stash'
-		      echo "Checking out Development Branch"
-		      sh 'git checkout development'
-                      echo "Making sure the development branch is upto date"
-		      sh 'git pull origin'
-		      echo "Checking Out Master Branch"
-		      sh 'git checkout master'
-		      echo "Merging Development into Master Branch"
-		      sh 'git merge development'
-		      echo "Pushing to Origin Master"
-		      echo "git push origin master"
-                  }
-            }
-	    stage('Promote to Green') {
+		stage('Promote to Green') {
                   agent {
                     label 'apache'
                   }
@@ -89,9 +68,35 @@ pipeline {
                   }
                   steps{
                     sh "if [ ! -d '/var/www/html/rectangles/all/green' ]; then mkdir -p /var/www/html/rectangles/all/green; fi"
-                    sh "cp /var/www/html/rectangles/all/development/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/green/"
+                    sh "cp -rp /var/www/html/rectangles/all/{env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/green/"
                   }
+        }
+
+        stage('Promote Development to Master Branch'){
+	        agent {
+	          label 'apache'
             }
+	  
+            when {
+	           branch 'development'
+	        }
+	  
+            steps {
+		      echo "Stashing any local changes"
+		      sh 'git stash'
+		      echo "Checking out Development Branch"
+		      sh 'git checkout development'
+              echo "Making sure the development branch is upto date"
+		      sh 'git pull origin'
+		      echo "Checking Out Master Branch"
+		      sh 'git checkout master'
+		      echo "Merging Development into Master Branch"
+		      sh 'git merge development'
+		      echo "Pushing to Origin Master"
+		      echo "git push origin master"
+            }
+        }
+	   
 
     }
     post {
