@@ -56,20 +56,7 @@ pipeline {
 
 		}
 
-		stage('Promote to Green') {
-		  agent {
-		    label 'apache'
-		  }
-                  when {
-	            branch 'development'
-                  }
-		  steps{
-		    sh "if [ ! -d '/var/www/html/rectangles/all/green' ]; then mkdir -p /var/www/html/rectangles/all/green; fi"
-		    sh "cp /var/www/html/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/green/"
-		  }
-		}
-                
-                stage('Promote Development to Master Branch'){
+            stage('Promote Development to Master Branch'){
 		  agent {
 		      label 'apache'
                   }
@@ -92,7 +79,20 @@ pipeline {
 		      echo "Pushing to Origin Master"
 		      echo "git push origin master"
                   }
-		}
+            }
+	    stage('Promote to Green') {
+                  agent {
+                    label 'apache'
+                  }
+                  when {
+                    branch 'development'
+                  }
+                  steps{
+                    sh "if [ ! -d '/var/www/html/rectangles/all/green' ]; then mkdir -p /var/www/html/rectangles/all/green; fi"
+                    sh "cp /var/www/html/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/green/"
+                  }
+            }
+
     }
     post {
         success {
