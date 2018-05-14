@@ -85,11 +85,11 @@ pipeline {
                     label 'apache'
                   }
                   when {
-                    branch 'development'
+                    branch 'master'
                   }
                   steps{
                     sh "if [ ! -d '/var/www/html/rectangles/all/green' ]; then mkdir -p /var/www/html/rectangles/all/green; fi"
-                    sh "cp /var/www/html/rectangles/all/${env.BRANCH_NAME}/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/green/"
+                    sh "cp /var/www/html/rectangles/all/development/rectangle_${env.MAJOR_VERSION}.${env.BUILD_NUMBER}.jar /var/www/html/rectangles/all/green/"
                   }
             }
 
